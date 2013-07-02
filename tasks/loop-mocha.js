@@ -32,6 +32,22 @@ module.exports = function(grunt) {
       .file({
       file: config
     });
+
+    if (!exists(mocha_path)) {
+      var i = module.paths.length,
+        bin;
+      while (i--) {
+        bin = path.join(module.paths[i], binPath);
+        if (exists(bin)) {
+          mocha_path = bin;
+          break;
+        }
+      }
+    }
+
+    if (!exists(mocha_path)) {
+      grunt.fail.warn('Unable to find mocha.');
+    }
     _.each(_.omit(options, 'reportLocation', 'config', 'iterations'), function(value, key) {
       if (key.match(/^[A-Z]{1}/)) {
         nconf.set(key, value);
