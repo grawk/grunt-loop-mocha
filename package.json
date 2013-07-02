@@ -26,9 +26,6 @@
     }
   ],
 
-  "main": "grunt.js",
-  "bin": "bin/grunt-loop-mocha",
-
   "engines": {
     "node": "*"
   },
