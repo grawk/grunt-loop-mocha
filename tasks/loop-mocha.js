@@ -13,7 +13,8 @@ module.exports = function(grunt) {
     util = grunt.util,
     child_process = require("child_process"),
     _ = util._,
-    nconf = require("nconf");
+    nconf = require("nconf"),
+    exists = grunt.file.exists;
 
   grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function() {
 
