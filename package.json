@@ -1,0 +1,56 @@
+{
+  "name": "grunt-loop-mocha",
+  "description": "A loop wrapper for initiating multiple mocha runs from one task target",
+  "version": "0.0.1",
+  "homepage": "https://github.com/grawk/grunt-loop-mocha",
+
+  "author": {
+    "name": "Matt Edelman",
+    "email": "mattedelman@gmail.com",
+    "url": "https://github.com/grawk"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/grawk/grunt-loop-mocha.git"
+  },
+
+  "bugs": {
+    "url": "https://github.com/grawk/grunt-loop-mocha/issues"
+  },
+
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/grawk/grunt-loop-mocha/blob/master/LICENSE-MIT"
+    }
+  ],
+
+  "main": "grunt.js",
+  "bin": "bin/grunt-loop-mocha",
+
+  "engines": {
+    "node": "*"
+  },
+
+  "scripts": {
+    "test": "grunt test"
+  },
+
+  "dependencies": {
+    "mocha": "*"
+  },
+
+  "devDependencies": {
+    "grunt": "0.4.x",
+    "grunt-contrib-jshint": "0.1.x",
+    "nconf": "~0.6.7",
+    "xunit-file": "*"
+  },
+
+  "keywords": [
+    "gruntplugin",
+    "mocha",
+    "test"
+  ]
+}
