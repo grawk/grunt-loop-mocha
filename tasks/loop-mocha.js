@@ -10,8 +10,6 @@
 module.exports = function(grunt) {
 
   var path = require('path'),
-    binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
-    mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
     util = grunt.util,
     child_process = require("child_process"),
     _ = util._,
@@ -21,6 +19,8 @@ module.exports = function(grunt) {
 
     var options = this.options(),
       reportLocation = options.reportLocation || '',
+      binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
+      mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
       config = options.config || undefined,
       iterations = options.iterations || undefined,
       done = this.async(),
