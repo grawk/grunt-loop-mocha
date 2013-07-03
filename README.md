@@ -51,8 +51,8 @@ grunt.registerTask('test', 'loopmocha');
 
 For the options outside of the "iterations" object, any supported mocha command line argument is accepted here. In addition to those mocha specific arguments, the following lowercase options are specifically for configuring this task:
 
-* config: specifies location of the config JSON file for storing pass through variables. Recommended to put this in test/functional/config/conf.json
-* reportLocation: specify where xunit report files should be written. Note: if you are using "xunit-file" as your reporter, you need to add it to your package.json
+* config (required): specifies location of the config JSON file for storing pass through variables.
+* reportLocation (required if using xunit-file reporter): specify where xunit report files should be written. Note: if you are using "xunit-file" as your reporter, you need to add it to your package.json
 
 ### uppercase options
 
