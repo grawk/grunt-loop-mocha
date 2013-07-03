@@ -1,8 +1,8 @@
 /*
- * grunt-simple-mocha
- * https://github.com/yaymukund/grunt-simple-mocha
+ * grunt-loop-mocha
+ * https://github.com/grawk/grunt-loop-mocha
  *
- * Copyright (c) 2012 Mukund Lakshman
+ * Copyright (c) 2013 Matt Edelman
  * Licensed under the MIT license.
  */
 "use strict";
