@@ -49,13 +49,18 @@ module.exports = function(grunt) {
     if (!exists(mocha_path)) {
       grunt.fail.warn('Unable to find mocha.');
     }
-    _.each(_.omit(options, 'reportLocation', 'config', 'iterations'), function(value, key) {
+    _.each(_.omit(options, 'reportLocation', 'iterations'), function(value, key) {
       if (key.match(/^[A-Z]{1}/)) {
-        nconf.set(key, value);
-      } else {
-        //set to mocha options
-        mocha_options += " --" + key + " " + value + " ";
-      }
+        if (nconf.get(key)) {//check if the key is set already (i.e. env, argv)
+          value = nconf.get(key);
+        } else {
+          nconf.set(key, value);
+        }
+        
+      } 
+        if (value !== "") {
+          mocha_options += " --" + key + " " + value + " ";
+        }
     });
 
     this.filesSrc.forEach(function(el) {
