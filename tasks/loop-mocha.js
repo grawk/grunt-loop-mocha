@@ -10,6 +10,7 @@
 module.exports = function(grunt) {
 
   var path = require('path'),
+    fs = require('fs'),
     util = grunt.util,
     child_process = require("child_process"),
     _ = util._,
@@ -27,6 +28,8 @@ module.exports = function(grunt) {
       done = this.async(),
       mocha_options = "";
 
+    //wipe out nconf file
+    fs.writeFileSync(config, "{}");
     //configure nconf
     nconf.argv()
       .env()
