@@ -12,6 +12,7 @@ module.exports = function(grunt) {
   var path = require('path'),
     fs = require('fs'),
     util = grunt.util,
+    nutil = require('util'),
     child_process = require("child_process"),
     _ = util._,
     nconf = require("nconf"),
@@ -26,7 +27,8 @@ module.exports = function(grunt) {
       config = options.config || undefined,
       iterations = options.iterations || undefined,
       done = this.async(),
-      mocha_options = "";
+      mocha_options = "",
+      opts_array = [];
 
     //wipe out nconf file
     fs.writeFileSync(config, "{}");
@@ -34,8 +36,8 @@ module.exports = function(grunt) {
     nconf.argv()
       .env()
       .file({
-      file: config
-    });
+        file: config
+      });
 
     if (!exists(mocha_path)) {
       var i = module.paths.length,
@@ -54,20 +56,23 @@ module.exports = function(grunt) {
     }
     _.each(_.omit(options, 'reportLocation', 'iterations'), function(value, key) {
       if (key.match(/^[A-Z]{1}/)) {
-        if (nconf.get(key)) {//check if the key is set already (i.e. env, argv)
+        if (nconf.get(key)) { //check if the key is set already (i.e. env, argv)
           value = nconf.get(key);
         } else {
           nconf.set(key, value);
         }
-        
-      } 
-        if (value !== "") {
-          mocha_options += " --" + key + " " + value + " ";
-        }
+
+      }
+      if (value !== "") {
+        mocha_options += " --" + key + " " + value + " ";
+        opts_array.push("--" + key);
+        opts_array.push(value);
+      }
     });
 
     this.filesSrc.forEach(function(el) {
       mocha_options += el + " ";
+      opts_array.push(el);
     });
 
     util.async.forEachSeries(iterations, function(el, cb) {
@@ -82,12 +87,29 @@ module.exports = function(grunt) {
         console.log("set: " + i);
       }
       nconf.save(function(err) {
-        var cmd = mocha_path + mocha_options;
-        grunt.log.writeln(cmd);
-        child_process.exec(cmd, function(err, stdout) {
-          grunt.log.write(stdout);
-          cb(err);
+        var cmd = mocha_path + mocha_options,
+          child,
+          stdout,
+          stderr;
+        grunt.log.writeln(mocha_path);
+        grunt.log.writeln(opts_array);
+        child = child_process.spawn(mocha_path, opts_array);
+
+        child.stdout.on('data', function(buf) {
+          console.log(String(buf));
+          stdout += buf;
         });
+        child.stderr.on('data', function(buf) {
+          console.log(String(buf));
+          stderr += buf;
+        });
+        child.on('close', function(code) {
+          console.log('[END] code', code);
+          console.log('[END] stdout "%s"', stdout);
+          console.log('[END] stderr "%s"', stderr);
+          cb();
+        });
+
       });
 
     }, function(err) {
