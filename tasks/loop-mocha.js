@@ -104,15 +104,18 @@ module.exports = function(grunt) {
           stderr += buf;
         });
         child.on('close', function(code) {
-          console.log('[END] code', code);
-          console.log('[END] stdout "%s"', stdout);
-          console.log('[END] stderr "%s"', stderr);
-          cb();
+          console.log('grunt-loop-mocha close with code', code);
+          if (code !== 0) {
+            cb(new Error("grunt-loop-mocha encountered a non-success exit code"));
+          } else {
+            cb();
+          }
         });
 
       });
 
     }, function(err) {
+      //console.log("DONE!", err);
       done(err)
     });
   });
