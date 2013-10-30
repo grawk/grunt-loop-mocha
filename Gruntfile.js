@@ -20,7 +20,8 @@ module.exports = function(grunt) {
             }, {
               "A_FOURTH_KEY": "blah"
             }, {
-              "A_FIFTH_KEY": "BLERG"
+              "A_FIFTH_KEY": "BLERG",
+              "A_SIXTH_KEY": 123
             }
           ],
           config: "test/conf.json",
@@ -28,7 +29,8 @@ module.exports = function(grunt) {
           timeout: 3000,
           ui: 'bdd',
           reporter: "xunit-file",
-          reportLocation: "test/report"
+          reportLocation: "test/report",
+          RANDOM_UPPERCASE: "fromfile"
         }
       }
     },
