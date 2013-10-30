@@ -27,17 +27,19 @@ module.exports = function(grunt) {
       config = options.config || undefined,
       iterations = options.iterations || undefined,
       done = this.async(),
-      mocha_options = "",
+      filesSrc = this.filesSrc,
+      // mocha_options = "",
       opts_array = [];
 
     //wipe out nconf file
-    fs.writeFileSync(config, "{}");
+    console.log("HI FROM LOOP");
+    //fs.writeFileSync(config, "{}");
     //configure nconf
     nconf.argv()
-      .env()
-      .file({
-        file: config
-      });
+      .env();
+    // .file({
+    //   file: config
+    // });
 
     if (!exists(mocha_path)) {
       var i = module.paths.length,
@@ -64,36 +66,41 @@ module.exports = function(grunt) {
 
       }
       if (value !== "") {
-        mocha_options += " --" + key + " " + value + " ";
+        //mocha_options += " --" + key + " " + value + " ";
         opts_array.push("--" + key);
         opts_array.push(value);
       }
     });
 
-    this.filesSrc.forEach(function(el) {
-      mocha_options += el + " ";
-      opts_array.push(el);
-    });
 
     util.async.forEachSeries(iterations, function(el, cb) {
-      var i;
+      var i,
+        localopts = opts_array.slice(0);
 
+      //console.log(localopts, "localopts");
       if (options.reporter === "xunit-file") {
         process.env.XUNIT_FILE = reportLocation + "/xunit-" + (new Date()).getTime() + ".xml";
         console.log(process.env.XUNIT_FILE);
       }
       for (i in el) {
         nconf.set(i, el[i]);
-        console.log("set: " + i);
+        console.log("set: " + i, el[i]);
+        if (el[i] !== "") {
+          // mocha_options += " --" + i + " " + el[i] + " ";
+          localopts.push("--" + i);
+          localopts.push(el[i]);
+        }
       }
+      filesSrc.forEach(function(el) {
+        localopts.push(el);
+      });
       nconf.save(function(err) {
-        var cmd = mocha_path + mocha_options,
-          child,
+        var child,
           stdout,
           stderr;
         grunt.log.writeln(mocha_path);
-        grunt.log.writeln(opts_array);
-        child = child_process.spawn(mocha_path, opts_array);
+        grunt.log.writeln(localopts);
+        child = child_process.spawn(mocha_path, localopts);
 
         child.stdout.on('data', function(buf) {
           console.log(String(buf));
