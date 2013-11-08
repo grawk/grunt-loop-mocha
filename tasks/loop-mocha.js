@@ -31,15 +31,9 @@ module.exports = function(grunt) {
       // mocha_options = "",
       opts_array = [];
 
-    //wipe out nconf file
-    console.log("HI FROM LOOP");
-    //fs.writeFileSync(config, "{}");
     //configure nconf
     nconf.argv()
       .env();
-    // .file({
-    //   file: config
-    // });
 
     if (!exists(mocha_path)) {
       var i = module.paths.length,
@@ -56,41 +50,48 @@ module.exports = function(grunt) {
     if (!exists(mocha_path)) {
       grunt.fail.warn('Unable to find mocha.');
     }
-    _.each(_.omit(options, 'reportLocation', 'iterations'), function(value, key) {
-      if (key.match(/^[A-Z]{1}/)) {
-        if (nconf.get(key)) { //check if the key is set already (i.e. env, argv)
-          value = nconf.get(key);
-        } else {
-          nconf.set(key, value);
-        }
 
-      }
-      if (value !== "") {
-        //mocha_options += " --" + key + " " + value + " ";
-        opts_array.push("--" + key);
-        opts_array.push(value);
-      }
-    });
 
 
     util.async.forEachSeries(iterations, function(el, cb) {
       var i,
-        localopts = opts_array.slice(0);
+        opts = {},
+        localopts = []; // = opts_array.slice(0);
 
+      _.each(_.omit(options, 'reportLocation', 'iterations'), function(value, key) {
+        //only use nconf for UPPERCASE vars
+        if (key.match(/^[A-Z]{1}/)) {
+          if (nconf.get(key)) { //check if the key is set already (i.e. env, argv)
+            value = nconf.get(key);
+          } else {
+            nconf.set(key, value);
+          }
+
+        }
+        if (value !== 0) {
+          opts[key] = value || "";
+        }
+      });
       //console.log(localopts, "localopts");
       if (options.reporter === "xunit-file") {
-        process.env.XUNIT_FILE = reportLocation + "/xunit-" + (new Date()).getTime() + ".xml";
+        process.env.XUNIT_FILE = reportLocation + "/xunit-" + ((el.iterationLabel) ? el.iterationLabel + "-" : "" || "") + (new Date()).getTime() + ".xml";
         console.log(process.env.XUNIT_FILE);
       }
       for (i in el) {
         nconf.set(i, el[i]);
-        console.log("set: " + i, el[i]);
-        if (el[i] !== "") {
-          // mocha_options += " --" + i + " " + el[i] + " ";
-          localopts.push("--" + i);
-          localopts.push(el[i]);
-        }
+        //console.log("set: " + i, el[i]);
+        opts[i] = el[i] || "";
       }
+      //move opts object to array
+      Object.keys(opts).forEach(function(key) {
+        if (key === "iterationLabel") {
+          return;
+        }
+        localopts.push("--" + key);
+        if (opts[key] !== "" || opts[key] !== undefined) {
+          localopts.push(opts[key]);
+        }
+      });
       filesSrc.forEach(function(el) {
         localopts.push(el);
       });
@@ -100,6 +101,7 @@ module.exports = function(grunt) {
           stderr;
         grunt.log.writeln(mocha_path);
         grunt.log.writeln(localopts);
+
         child = child_process.spawn(mocha_path, localopts);
 
         child.stdout.on('data', function(buf) {
@@ -122,8 +124,7 @@ module.exports = function(grunt) {
       });
 
     }, function(err) {
-      //console.log("DONE!", err);
-      done(err)
+      done(err);
     });
   });
 };
