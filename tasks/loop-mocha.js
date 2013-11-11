@@ -15,7 +15,10 @@ module.exports = function(grunt) {
     nutil = require('util'),
     child_process = require("child_process"),
     _ = util._,
-    exists = grunt.file.exists;
+    exists = grunt.file.exists,
+    resultError = 0,
+    iterLength,
+    resultJson = {};
 
   grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function() {
 
@@ -25,9 +28,12 @@ module.exports = function(grunt) {
       mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
       config = options.config || undefined,
       iterations = options.iterations || undefined,
+      iterLength = Object.keys(iterations).length,
+      currentIter = 0,
       done = this.async(),
       filesSrc = this.filesSrc,
-      opts_array = [];
+      opts_array = [],
+      runStamp = (new Date()).getTime();
 
     
     if (!exists(mocha_path)) {
@@ -51,7 +57,8 @@ module.exports = function(grunt) {
     util.async.forEachSeries(iterations, function(el, cb) {
       var i,
         opts = {},
-        localopts = []; // = opts_array.slice(0);
+        localopts = [],
+        itLabel = runStamp + "-" + ((el.iterationLabel) ? (el.iterationLabel) : (++currentIter)); // = opts_array.slice(0);
 
       _.each(_.omit(options, 'reportLocation', 'iterations'), function(value, key) {
         if (value !== 0) {
@@ -60,13 +67,14 @@ module.exports = function(grunt) {
       });
       //console.log(localopts, "localopts");
       if (options.reporter === "xunit-file") {
-        process.env.XUNIT_FILE = reportLocation + "/xunit-" + ((el.iterationLabel) ? el.iterationLabel + "-" : "" || "") + (new Date()).getTime() + ".xml";
+        process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
         console.log(process.env.XUNIT_FILE);
       }
       for (i in el) {
         opts[i] = el[i] || "";
       }
       //move opts object to array
+      //console.log(opts);
       Object.keys(opts).forEach(function(key) {
         if (key === "iterationLabel") {
           return;
@@ -96,17 +104,24 @@ module.exports = function(grunt) {
           stderr += buf;
         });
         child.on('close', function(code) {
-          console.log('grunt-loop-mocha close with code', code);
+          resultJson[itLabel] = code;
+          iterLength--;
           if (code !== 0) {
-            cb(new Error("grunt-loop-mocha encountered a non-success exit code"));
+            resultError++;
+            cb();
           } else {
             cb();
           }
         });
 
 
-    }, function(err) {
-      done(err);
+    }, function() {
+      //console.log(resultError, iterLength);
+      if (resultError > 0 && iterLength === 0) {
+        done(new Error("grunt-loop-mocha error, please check erroneous iteration(s): "+JSON.stringify(resultJson)))
+      } else {
+        done()
+      }
     });
   });
 };
