@@ -41,7 +41,6 @@
   "devDependencies": {
     "grunt": "0.4.x",
     "grunt-contrib-jshint": "0.1.x",
-    "nconf": "~0.6.7",
     "xunit-file": "*"
   },
   "peerDependencies": {

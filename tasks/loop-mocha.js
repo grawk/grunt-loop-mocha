@@ -15,7 +15,6 @@ module.exports = function(grunt) {
     nutil = require('util'),
     child_process = require("child_process"),
     _ = util._,
-    nconf = require("nconf"),
     exists = grunt.file.exists;
 
   grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function() {
@@ -28,13 +27,9 @@ module.exports = function(grunt) {
       iterations = options.iterations || undefined,
       done = this.async(),
       filesSrc = this.filesSrc,
-      // mocha_options = "",
       opts_array = [];
 
-    //configure nconf
-    nconf.argv()
-      .env();
-
+    
     if (!exists(mocha_path)) {
       var i = module.paths.length,
         bin;
@@ -59,15 +54,6 @@ module.exports = function(grunt) {
         localopts = []; // = opts_array.slice(0);
 
       _.each(_.omit(options, 'reportLocation', 'iterations'), function(value, key) {
-        //only use nconf for UPPERCASE vars
-        if (key.match(/^[A-Z]{1}/)) {
-          if (nconf.get(key)) { //check if the key is set already (i.e. env, argv)
-            value = nconf.get(key);
-          } else {
-            nconf.set(key, value);
-          }
-
-        }
         if (value !== 0) {
           opts[key] = value || "";
         }
@@ -78,8 +64,6 @@ module.exports = function(grunt) {
         console.log(process.env.XUNIT_FILE);
       }
       for (i in el) {
-        nconf.set(i, el[i]);
-        //console.log("set: " + i, el[i]);
         opts[i] = el[i] || "";
       }
       //move opts object to array
@@ -95,7 +79,6 @@ module.exports = function(grunt) {
       filesSrc.forEach(function(el) {
         localopts.push(el);
       });
-      nconf.save(function(err) {
         var child,
           stdout,
           stderr;
@@ -121,7 +104,6 @@ module.exports = function(grunt) {
           }
         });
 
-      });
 
     }, function(err) {
       done(err);
