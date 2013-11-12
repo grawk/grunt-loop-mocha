@@ -16,9 +16,9 @@ module.exports = function(grunt) {
     child_process = require("child_process"),
     _ = util._,
     exists = grunt.file.exists,
-    resultError = 0,
-    iterLength,
-    resultJson = {};
+    iterationError = false,
+    iterationRemaining,
+    iterationResults = {};
 
   grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function() {
 
@@ -28,8 +28,8 @@ module.exports = function(grunt) {
       mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
       config = options.config || undefined,
       iterations = options.iterations || undefined,
-      iterLength = Object.keys(iterations).length,
-      currentIter = 0,
+      iterationRemaining = Object.keys(iterations).length,
+      iterationIndex = 0,
       done = this.async(),
       filesSrc = this.filesSrc,
       opts_array = [],
@@ -58,8 +58,9 @@ module.exports = function(grunt) {
       var i,
         opts = {},
         localopts = [],
-        itLabel = runStamp + "-" + ((el.iterationLabel) ? (el.iterationLabel) : (++currentIter)); // = opts_array.slice(0);
+        itLabel = runStamp + "-" + ((el.description) ? (el.description) : (++iterationIndex)); // = opts_array.slice(0);
 
+        grunt.log.writeln("[grunt-loop-mocha] iteration: ", itLabel);
       _.each(_.omit(options, 'reportLocation', 'iterations'), function(value, key) {
         if (value !== 0) {
           opts[key] = value || "";
@@ -68,7 +69,7 @@ module.exports = function(grunt) {
       //console.log(localopts, "localopts");
       if (options.reporter === "xunit-file") {
         process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
-        console.log(process.env.XUNIT_FILE);
+        grunt.log.writeln("[grunt-loop-mocha] xunit output: ", process.env.XUNIT_FILE);
       }
       for (i in el) {
         opts[i] = el[i] || "";
@@ -76,7 +77,7 @@ module.exports = function(grunt) {
       //move opts object to array
       //console.log(opts);
       Object.keys(opts).forEach(function(key) {
-        if (key === "iterationLabel") {
+        if (key === "description") {
           return;
         }
         localopts.push("--" + key);
@@ -90,8 +91,7 @@ module.exports = function(grunt) {
         var child,
           stdout,
           stderr;
-        grunt.log.writeln(mocha_path);
-        grunt.log.writeln(localopts);
+        grunt.log.writeln("[grunt-loop-mocha] argv: ", localopts.toString());
 
         child = child_process.spawn(mocha_path, localopts);
 
@@ -104,10 +104,10 @@ module.exports = function(grunt) {
           stderr += buf;
         });
         child.on('close', function(code) {
-          resultJson[itLabel] = code;
-          iterLength--;
+          iterationResults[itLabel] = code;
+          iterationRemaining--;
           if (code !== 0) {
-            resultError++;
+            iterationError = true;
             cb();
           } else {
             cb();
@@ -116,9 +116,9 @@ module.exports = function(grunt) {
 
 
     }, function() {
-      //console.log(resultError, iterLength);
-      if (resultError > 0 && iterLength === 0) {
-        done(new Error("grunt-loop-mocha error, please check erroneous iteration(s): "+JSON.stringify(resultJson)))
+      //console.log(iterationError, iterationRemaining);
+      if (iterationError === true && iterationRemaining === 0) {
+        done(new Error("[grunt-loop-mocha] error, please check erroneous iteration(s): "+JSON.stringify(iterationResults)))
       } else {
         done()
       }
