@@ -35,6 +35,7 @@ loopmocha: {
               "YET_ANOTHER_KEY": "still yet another value"
             }
           ],
+          parallel: false,
           globals: ['should'],
           timeout: 3000,
           ui: 'bdd',
@@ -53,6 +54,7 @@ grunt.registerTask('test', 'loopmocha');
 
 any supported mocha command line argument is accepted here. In addition to those mocha specific arguments, the following lowercase options are specifically for configuring this task, and won't be passed along to the mocha process:
 
+* parallel (optional: defaults to false): If true, mocha iterations will run in parallel via async.forEach. If false, mocha iterations will run in series via async.forEachSeries
 * reportLocation (required if using xunit-file reporter): specify where xunit report files should be written. Note: if you are using "xunit-file" as your reporter, you need to add it to your package.json
 * description (optional): put this within your iteration objects in order to better label your console output or xunit report file
 

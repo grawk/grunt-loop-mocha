@@ -12,19 +12,24 @@ module.exports = function(grunt) {
         src: ["test/*.js"],
         options: {
           iterations: [{
+			  "description": "first",
               "SOME_KEY": "some value"
             }, {
+			  "description": "second",
               "SOME_OTHER_KEY": "some other value"
             }, {
+			  "description": "third",
               "A_THIRD_KEY": "another value"
             }, {
+			  "description": "fourth",
               "A_FOURTH_KEY": "blah"
             }, {
+			  "description": "fifth",
               "A_FIFTH_KEY": "BLERG",
               "A_SIXTH_KEY": 123
             }
           ],
-          config: "test/conf.json",
+			parallel: true,
           globals: ['should'],
           timeout: 3000,
           ui: 'bdd',
