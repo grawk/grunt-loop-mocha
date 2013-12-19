@@ -18,6 +18,7 @@ module.exports = function (grunt) {
 		exists = grunt.file.exists,
 		iterationError = false,
 		iterationRemaining,
+		noFail = false,
 		iterationResults = {};
 
 	grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function () {
@@ -61,7 +62,7 @@ module.exports = function (grunt) {
 				itLabel = runStamp + "-" + ((el.description) ? (el.description) : (++iterationIndex)); // = opts_array.slice(0);
 
 			grunt.log.writeln("[grunt-loop-mocha] iteration: ", itLabel);
-			_.each(_.omit(options, 'reportLocation', 'iterations', 'parallel'), function (value, key) {
+			_.each(_.omit(options, 'reportLocation', 'iterations', 'parallel', 'noFail'), function (value, key) {
 				if (value !== 0) {
 					opts[key] = value || "";
 				}
@@ -70,6 +71,9 @@ module.exports = function (grunt) {
 			if (options.reporter === "xunit-file") {
 				process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
 				grunt.log.writeln("[grunt-loop-mocha] xunit output: ", process.env.XUNIT_FILE);
+			}
+			if (options.noFail && options.noFail === true) {
+				noFail = true;
 			}
 			for (i in el) {
 				opts[i] = el[i] || "";
@@ -118,9 +122,17 @@ module.exports = function (grunt) {
 		}, function () {
 			//console.log(iterationError, iterationRemaining);
 			if (iterationError === true && iterationRemaining === 0) {
-				done(new Error("[grunt-loop-mocha] error, please check erroneous iteration(s): " + JSON.stringify(iterationResults)))
+				var msg = "[grunt-loop-mocha] error, please check erroneous iteration(s): " + JSON.stringify(iterationResults);
+				if (noFail === true) {
+					console.log(msg);
+					done();
+				}
+				else {
+					done(new Error(msg));
+				}
+
 			} else {
-				done()
+				done();
 			}
 		});
 	});
