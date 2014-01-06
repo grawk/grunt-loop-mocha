@@ -72,7 +72,7 @@ module.exports = function (grunt) {
 				process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
 				grunt.log.writeln("[grunt-loop-mocha] xunit output: ", process.env.XUNIT_FILE);
 			}
-			if (options.noFail && options.noFail === true) {
+			if (options.noFail && options.noFail.toString().toLowerCase() === "true") {
 				noFail = true;
 			}
 			for (i in el) {
