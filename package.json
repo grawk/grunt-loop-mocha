@@ -1,7 +1,7 @@
 {
   "name": "grunt-loop-mocha",
   "description": "A loop wrapper for initiating multiple mocha runs from one task target",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "homepage": "https://github.com/grawk/grunt-loop-mocha",
 
   "author": {

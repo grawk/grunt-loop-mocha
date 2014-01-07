@@ -25,7 +25,7 @@ module.exports = function (grunt) {
 
 		var options = this.options(),
 			reportLocation = options.reportLocation || '',
-			asyncMethod = (options.parallel === true) ? "forEach" : "forEachSeries",
+			asyncMethod = (options.parallel.toString().toLowerCase() === "true") ? "forEach" : "forEachSeries",
 			binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
 			mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
 			config = options.config || undefined,
