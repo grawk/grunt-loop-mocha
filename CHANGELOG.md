@@ -1,5 +1,9 @@
 # grunt-loop-mocha Changes
 
+## v0.2.5
+
+* Modify parallel flag handling such that options.parallel === undefined will not cause an exception
+
 ## v0.2.4
 
 * Modify parallel flag handling such that Boolean true as well as any string version of "true" will evaluate to "true". Allows flag to be passed in via command line arg

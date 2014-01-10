@@ -56,7 +56,9 @@ any supported mocha command line argument is accepted here. In addition to those
 
 * parallel (optional: defaults to false): If true, mocha iterations will run in parallel via async.forEach. If false, mocha iterations will run in series via async.forEachSeries
 * reportLocation (required if using xunit-file reporter): specify where xunit report files should be written. Note: if you are using "xunit-file" as your reporter, you need to add it to your package.json
-* description (optional): put this within your iteration objects in order to better label your console output or xunit report file
+* noFail (optional: defaults to false): If true, the task will exit as zero regardless of any mocha test failures
+* iterations: Array of uppercase/lowercase properties. mocha will loop for each item, using its properties for the mocha run
+  * iterations[N].description (optional): put this within your iteration objects in order to better label your console output or xunit report file
 
 ### uppercase options
 
