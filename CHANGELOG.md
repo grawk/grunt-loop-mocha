@@ -1,5 +1,9 @@
 # grunt-loop-mocha Changes
 
+## v0.2.6
+
+* Export iteration label as a command line arg for use in mocha tests
+
 ## v0.2.5
 
 * Modify parallel flag handling such that options.parallel === undefined will not cause an exception

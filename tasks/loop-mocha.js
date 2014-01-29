@@ -89,6 +89,8 @@ module.exports = function (grunt) {
 					localopts.push(opts[key]);
 				}
 			});
+			localopts.push("--ITERATION_LABEL");
+			localopts.push(itLabel);
 			filesSrc.forEach(function (el) {
 				localopts.push(el);
 			});
