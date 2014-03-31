@@ -22,22 +22,29 @@ module.exports = function (grunt) {
 		iterationResults = {};
 
 	grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function () {
-
+		//make sure we are getting the options objects we expect
+		console.log('grunt.config.get("loopmocha.options.mocha")',grunt.config.get("loopmocha.options.mocha"))
 		var options = this.options(),
-			reportLocation = options.reportLocation || '',
-			asyncMethod = (options.parallel && options.parallel.toString().toLowerCase() === "true") ? "forEach" : "forEachSeries",
+			mochaDefaultOptions = grunt.config.get("loopmocha.options.mocha"),
+			mochaOptions = _.merge(mochaDefaultOptions, options.mocha),
+			nemoDefaultOptions = grunt.config.get("loopmocha.options.nemo"),
+			nemoOptions = _.merge(nemoDefaultOptions, options.nemo),
+			nemoStorage = require(nemoDefaultOptions.storage),
+			reportLocation = mochaDefaultOptions.reportLocation || '',
+			asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true") ? "forEach" : "forEachSeries",
 			binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
 			mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
-			config = options.config || undefined,
 			iterations = options.iterations || undefined,
 			iterationRemaining = Object.keys(iterations).length,
 			iterationIndex = 0,
 			done = this.async(),
 			filesSrc = this.filesSrc,
-			opts_array = [],
 			runStamp = (new Date()).getTime();
+		console.log('mochaDefaultOptions', mochaDefaultOptions);
+		console.log('mochaOptions', mochaOptions);
 
-
+		// console.log(iterations)
+		//console.log(grunt.config.get("loopmocha"));
 		if (!exists(mocha_path)) {
 			var i = module.paths.length,
 				bin;
@@ -59,25 +66,31 @@ module.exports = function (grunt) {
 			var i,
 				opts = {},
 				localopts = [],
+				localMochaOptions = (el.mocha) ? _.merge(mochaOptions, el.mocha) : mochaOptions,
+				localNemoOptions = (el.nemo) ? _.merge(nemoOptions, el.nemo) : nemoOptions,
 				itLabel = runStamp + "-" + ((el.description) ? (el.description) : (++iterationIndex)); // = opts_array.slice(0);
 
+			//write nemo options
+			//nemoStorage.set(localNemoOptions);
 			grunt.log.writeln("[grunt-loop-mocha] iteration: ", itLabel);
-			_.each(_.omit(options, 'reportLocation', 'iterations', 'parallel', 'noFail'), function (value, key) {
+			_.each(_.omit(localMochaOptions, 'reportLocation', 'iterations', 'parallel', 'noFail'), function (value, key) {
 				if (value !== 0) {
+					console.log("added from A", key);
 					opts[key] = value || "";
 				}
 			});
 			//console.log(localopts, "localopts");
-			if (options.reporter === "xunit-file") {
+			if (localMochaOptions.reporter === "xunit-file") {
 				process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
 				grunt.log.writeln("[grunt-loop-mocha] xunit output: ", process.env.XUNIT_FILE);
 			}
-			if (options.noFail && options.noFail.toString().toLowerCase() === "true") {
+			if (localMochaOptions.noFail && localMochaOptions.noFail.toString().toLowerCase() === "true") {
 				noFail = true;
 			}
-			for (i in el) {
-				opts[i] = el[i] || "";
-			}
+//            for (i in el) {
+//				console.log("added from B", i);
+//                opts[i] = el[i] || "";
+//            }
 			//move opts object to array
 			//console.log(opts);
 			Object.keys(opts).forEach(function (key) {
@@ -89,8 +102,8 @@ module.exports = function (grunt) {
 					localopts.push(opts[key]);
 				}
 			});
-			localopts.push("--ITERATION_LABEL");
-			localopts.push(itLabel);
+//            localopts.push("--ITERATION_LABEL");
+//            localopts.push(itLabel);
 			filesSrc.forEach(function (el) {
 				localopts.push(el);
 			});
@@ -99,7 +112,7 @@ module.exports = function (grunt) {
 				stderr;
 			grunt.log.writeln("[grunt-loop-mocha] argv: ", localopts.toString());
 
-			child = child_process.spawn(mocha_path, localopts);
+			child = child_process.spawn(mocha_path, localopts, {env: _.merge(process.env, {"nemoData": JSON.stringify(localNemoOptions)})});
 
 			child.stdout.on('data', function (buf) {
 				console.log(String(buf));
