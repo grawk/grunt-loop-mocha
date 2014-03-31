@@ -29,7 +29,6 @@ module.exports = function (grunt) {
 			mochaOptions = _.merge(mochaDefaultOptions, options.mocha),
 			nemoDefaultOptions = grunt.config.get("loopmocha.options.nemo"),
 			nemoOptions = _.merge(nemoDefaultOptions, options.nemo),
-			nemoStorage = require(nemoDefaultOptions.storage),
 			reportLocation = mochaDefaultOptions.reportLocation || '',
 			asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true") ? "forEach" : "forEachSeries",
 			binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
