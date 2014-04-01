@@ -83,6 +83,7 @@ module.exports = function (grunt) {
 
 			//stringify the extra options for passage via env
 			_.each(localOtherOptions, function (value, key) {
+				console.log("[grunt-loop-mocha] setting ENV var ", key, "with value", value);
 				localOtherOptionsStringified[key] = JSON.stringify(value);
 			});
 
@@ -126,7 +127,7 @@ module.exports = function (grunt) {
 				stdout += buf;
 			});
 			child.stderr.on('data', function (buf) {
-				console.log(String(buf));
+				console.error(String(buf));
 				stderr += buf;
 			});
 			child.on('close', function (code) {
