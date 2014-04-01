@@ -22,13 +22,12 @@ module.exports = function (grunt) {
 		iterationResults = {};
 
 	grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function () {
-		//make sure we are getting the options objects we expect
-		console.log('grunt.config.get("loopmocha.options.mocha")',grunt.config.get("loopmocha.options.mocha"))
 		var options = this.options(),
 			mochaDefaultOptions = grunt.config.get("loopmocha.options.mocha"),
 			mochaOptions = _.merge(mochaDefaultOptions, options.mocha),
-			nemoDefaultOptions = grunt.config.get("loopmocha.options.nemo"),
-			nemoOptions = _.merge(nemoDefaultOptions, options.nemo),
+			allDefaultOptions = grunt.config.get("loopmocha.options"),
+			otherDefaultOptions = {},
+			otherOptions = {},
 			reportLocation = mochaDefaultOptions.reportLocation || '',
 			asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true") ? "forEach" : "forEachSeries",
 			binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
@@ -39,11 +38,17 @@ module.exports = function (grunt) {
 			done = this.async(),
 			filesSrc = this.filesSrc,
 			runStamp = (new Date()).getTime();
-		console.log('mochaDefaultOptions', mochaDefaultOptions);
-		console.log('mochaOptions', mochaOptions);
 
-		// console.log(iterations)
-		//console.log(grunt.config.get("loopmocha"));
+		//catalog any extra default options
+		_.each(_.omit(allDefaultOptions, 'src', 'basedir', 'mocha', 'iterations'), function (value, key) {
+			otherDefaultOptions[key] = value;
+		});
+		//catalog any extra task specific options
+		_.each(_.omit(options, 'src', 'basedir', 'mocha', 'iterations'), function (value, key) {
+			otherOptions[key] = value;
+		});
+		//merge together the default and task specific extra options
+		otherOptions = _.merge(otherDefaultOptions, otherOptions);
 		if (!exists(mocha_path)) {
 			var i = module.paths.length,
 				bin;
@@ -65,20 +70,29 @@ module.exports = function (grunt) {
 			var i,
 				opts = {},
 				localopts = [],
+				localOtherOptions = {},
+				localOtherOptionsStringified = {},
 				localMochaOptions = (el.mocha) ? _.merge(mochaOptions, el.mocha) : mochaOptions,
-				localNemoOptions = (el.nemo) ? _.merge(nemoOptions, el.nemo) : nemoOptions,
 				itLabel = runStamp + "-" + ((el.description) ? (el.description) : (++iterationIndex)); // = opts_array.slice(0);
 
-			//write nemo options
-			//nemoStorage.set(localNemoOptions);
+			//merge the iteration extra options with the default/task specific extra options
+			_.each(_.omit(el, 'description', 'mocha'), function (value, key) {
+				localOtherOptions[key] = value;
+			});
+			localOtherOptions = _.merge(otherOptions, localOtherOptions);
+
+			//stringify the extra options for passage via env
+			_.each(localOtherOptions, function (value, key) {
+				localOtherOptionsStringified[key] = JSON.stringify(value);
+			});
+
 			grunt.log.writeln("[grunt-loop-mocha] iteration: ", itLabel);
 			_.each(_.omit(localMochaOptions, 'reportLocation', 'iterations', 'parallel', 'noFail'), function (value, key) {
 				if (value !== 0) {
-					console.log("added from A", key);
+					//console.log("added from A", key);
 					opts[key] = value || "";
 				}
 			});
-			//console.log(localopts, "localopts");
 			if (localMochaOptions.reporter === "xunit-file") {
 				process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
 				grunt.log.writeln("[grunt-loop-mocha] xunit output: ", process.env.XUNIT_FILE);
@@ -86,12 +100,7 @@ module.exports = function (grunt) {
 			if (localMochaOptions.noFail && localMochaOptions.noFail.toString().toLowerCase() === "true") {
 				noFail = true;
 			}
-//            for (i in el) {
-//				console.log("added from B", i);
-//                opts[i] = el[i] || "";
-//            }
-			//move opts object to array
-			//console.log(opts);
+
 			Object.keys(opts).forEach(function (key) {
 				if (key === "description") {
 					return;
@@ -101,8 +110,7 @@ module.exports = function (grunt) {
 					localopts.push(opts[key]);
 				}
 			});
-//            localopts.push("--ITERATION_LABEL");
-//            localopts.push(itLabel);
+
 			filesSrc.forEach(function (el) {
 				localopts.push(el);
 			});
@@ -111,7 +119,7 @@ module.exports = function (grunt) {
 				stderr;
 			grunt.log.writeln("[grunt-loop-mocha] argv: ", localopts.toString());
 
-			child = child_process.spawn(mocha_path, localopts, {env: _.merge(process.env, {"nemoData": JSON.stringify(localNemoOptions)})});
+			child = child_process.spawn(mocha_path, localopts, {env: _.merge(process.env, localOtherOptionsStringified)});
 
 			child.stdout.on('data', function (buf) {
 				console.log(String(buf));
@@ -134,7 +142,6 @@ module.exports = function (grunt) {
 
 
 		}, function () {
-			//console.log(iterationError, iterationRemaining);
 			if (iterationError === true && iterationRemaining === 0) {
 				var msg = "[grunt-loop-mocha] error, please check erroneous iteration(s): " + JSON.stringify(iterationResults);
 				if (noFail === true) {
