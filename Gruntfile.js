@@ -13,24 +13,31 @@ module.exports = function (grunt) {
 				iterations: [
 					{
 						"description": "first",
-						"SOME_KEY": "some value"
+						"env1": {
+							"someKey": "some value"
+						}
 					},
 					{
 						"description": "second",
-						"SOME_OTHER_KEY": "some other value"
+						"env2": {
+							"someOtherKey": "some other value"
+						}
 					},
 					{
 						"description": "third",
-						"A_THIRD_KEY": "another value"
-					},
-					{
-						"description": "fourth",
-						"A_FOURTH_KEY": "blah"
+						"mocha": {
+							"timeout": 4000
+						}
 					},
 					{
 						"description": "fifth",
-						"A_FIFTH_KEY": "BLERG",
-						"A_SIXTH_KEY": 123
+						"env1": {
+							"anotherKey": "BLERG"
+						},
+						"env2": {
+							"yetAnotherKey": 123
+						}
+
 					}
 				],
 				mocha: {
@@ -38,7 +45,7 @@ module.exports = function (grunt) {
 					globals: ['should'],
 					timeout: 3000,
 					ui: 'bdd',
-					reporter: "xunit",
+					reporter: "xunit-file",
 					reportLocation: "test/report"
 				},
 				env1: {

@@ -95,6 +95,10 @@ module.exports = function (grunt) {
 				}
 			});
 			if (localMochaOptions.reporter === "xunit-file") {
+				var reportFolderExists = (fs.existsSync(reportLocation) && fs.statSync(reportLocation).isDirectory());
+				if (!reportFolderExists) {
+					done(new Error("[grunt-loop-mocha] You need to make sure your report directory exists before using the xunit-file reporter"));
+				}
 				process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
 				grunt.log.writeln("[grunt-loop-mocha] xunit output: ", process.env.XUNIT_FILE);
 			}
@@ -118,7 +122,7 @@ module.exports = function (grunt) {
 			var child,
 				stdout,
 				stderr;
-			grunt.log.writeln("[grunt-loop-mocha] argv: ", localopts.toString());
+			grunt.log.writeln("[grunt-loop-mocha] mocha argv: ", localopts.toString());
 
 			child = child_process.spawn(mocha_path, localopts, {env: _.merge(process.env, localOtherOptionsStringified)});
 

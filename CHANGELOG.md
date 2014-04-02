@@ -1,5 +1,9 @@
 # grunt-loop-mocha Changes
 
+## v0.3.0
+
+* Change structure of JSON config to namespace the mocha options, and namespace additional values as siblings to the mocha/iterations objects
+* Pass-through variables no longer set via argv on the command line. Instead, per the additional namespaces on the options object, stringified JSON environment variables will be set
 ## v0.2.6
 
 * Export iteration label as a command line arg for use in mocha tests
