@@ -111,7 +111,7 @@ module.exports = function (grunt) {
 					return;
 				}
 				localopts.push("--" + key);
-				if (opts[key] !== "" || opts[key] !== undefined) {
+				if (opts[key] !== "" && opts[key] !== undefined) {
 					localopts.push(opts[key]);
 				}
 			});
