@@ -12,7 +12,6 @@ module.exports = function (grunt) {
 	var path = require('path'),
 		fs = require('fs'),
 		util = grunt.util,
-		nutil = require('util'),
 		child_process = require("child_process"),
 		_ = util._,
 		exists = grunt.file.exists,
