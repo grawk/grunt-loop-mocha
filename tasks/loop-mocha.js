@@ -16,7 +16,6 @@ module.exports = function (grunt) {
 		_ = util._,
 		exists = grunt.file.exists,
 		iterationError = false,
-		iterationRemaining,
 		noFail = false,
 		iterationResults = {};
 
