@@ -14,7 +14,8 @@ module.exports = function (grunt) {
 		util = grunt.util,
 		nutil = require('util'),
 		child_process = require("child_process"),
-		_ = util._,
+		_ = require('lodash'),
+		async = require('async'),
 		exists = grunt.file.exists,
 		iterationError = false,
 		iterationRemaining,
@@ -29,7 +30,9 @@ module.exports = function (grunt) {
 			otherDefaultOptions = {},
 			otherOptions = {},
 			reportLocation = mochaDefaultOptions.reportLocation || '',
-			asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true") ? "forEach" : "forEachSeries",
+			asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true")
+							? "map"
+							: "mapSeries",
 			binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
 			mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
 			iterations = options.iterations || undefined,
@@ -66,7 +69,8 @@ module.exports = function (grunt) {
 		}
 
 
-		util.async[asyncMethod](iterations, function (el, cb) {
+		// map or mapLimit.  The cb will take an err and result...
+		async[asyncMethod](iterations, function (el, cb) {
 			var i,
 				opts = {},
 				localopts = [],
@@ -87,20 +91,27 @@ module.exports = function (grunt) {
 				localOtherOptionsStringified[key] = JSON.stringify(value);
 			});
 
-			grunt.log.writeln("[grunt-loop-mocha] iteration: ", itLabel);
-			_.each(_.omit(localMochaOptions, 'reportLocation', 'iterations', 'parallel', 'noFail'), function (value, key) {
-				if (value !== 0) {
-					//console.log("added from A", key);
-					opts[key] = value || "";
-				}
-			});
+			// put the localMochaOptions into opts so we can pass
+			// to mocha with --thing.  Remove options grunt-loop-mocha
+			// is supporting
+			_.each(_.omit(localMochaOptions
+						, 'reportLocation'
+						, 'iterations'
+						, 'parallel'
+						, 'noFail'
+						, 'limit'        	// the limit var for mapLimit
+						, 'parallelType')	// the kind of parallel run (better name?)
+					, function (value, key) {
+						if (value !== 0) {
+							//console.log("added from A", key);
+							opts[key] = value || "";
+						}
+					});
 			if (localMochaOptions.reporter === "xunit-file") {
 				var reportFolderExists = (fs.existsSync(reportLocation) && fs.statSync(reportLocation).isDirectory());
 				if (!reportFolderExists) {
 					done(new Error("[grunt-loop-mocha] You need to make sure your report directory exists before using the xunit-file reporter"));
 				}
-				process.env.XUNIT_FILE = reportLocation + "/xunit-" + itLabel + ".xml";
-				grunt.log.writeln("[grunt-loop-mocha] xunit output: ", process.env.XUNIT_FILE);
 			}
 			if (localMochaOptions.noFail && localMochaOptions.noFail.toString().toLowerCase() === "true") {
 				noFail = true;
@@ -116,38 +127,29 @@ module.exports = function (grunt) {
 				}
 			});
 
-			filesSrc.forEach(function (el) {
-				localopts.push(el);
-			});
-			var child,
-				stdout,
-				stderr;
-			grunt.log.writeln("[grunt-loop-mocha] mocha argv: ", localopts.toString());
-
-			child = child_process.spawn(mocha_path, localopts, {env: _.merge(process.env, localOtherOptionsStringified)});
-
-			child.stdout.on('data', function (buf) {
-				console.log(String(buf));
-				stdout += buf;
-			});
-			child.stderr.on('data', function (buf) {
-				console.error(String(buf));
-				stderr += buf;
-			});
-			child.on('close', function (code) {
-				iterationResults[itLabel] = code;
-				iterationRemaining--;
-				if (code !== 0) {
-					iterationError = true;
-					cb();
-				} else {
-					cb();
+			// spill off the processes.  This can be quite a few.
+			// the results will be in the form
+			// [[returnCode, itterationName], ...]
+			require('./process-loop.js')(grunt)({
+					filesSrc                    : filesSrc
+				  , mocha_path                  : mocha_path
+				  , reportLocation              : reportLocation
+				  , localopts                   : localopts
+				  , localOtherOptionsStringified: localOtherOptionsStringified
+				  , itLabel                     : itLabel
+				  , localMochaOptions			: localMochaOptions
 				}
-			});
+				, cb)
 
-
-		}, function () {
-			if (iterationError === true && iterationRemaining === 0) {
+		}, function (err, results) {
+			var iterationResults = results.reduce(function(results, runs) {
+										runs.forEach(function(run){
+											results[run[1]] = run[0]
+											iterationError = iterationError || !!run[0]
+										})
+										return results
+									}, {})
+			if (iterationError) {
 				var msg = "[grunt-loop-mocha] error, please check erroneous iteration(s): " + JSON.stringify(iterationResults);
 				if (noFail === true) {
 					console.log(msg);

@@ -38,6 +38,19 @@ module.exports = function (grunt) {
 							"yetAnotherKey": 123
 						}
 
+					},
+					{
+						"description": "many",
+						"mocha": {
+							"parallelType": "file"
+						},
+						"env1": {
+							"anotherKey": "BLERG"
+						},
+						"env2": {
+							"yetAnotherKey": 123
+						}
+
 					}
 				],
 				mocha: {
