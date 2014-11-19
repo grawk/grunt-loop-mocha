@@ -24,9 +24,11 @@ module.exports = function exports (grunt, _spawn) {
       , localOtherOptionsStringified  = op.localOtherOptionsStringified
       , itLabel                       = op.itLabel
       , localMochaOptions             = op.localMochaOptions
+      , loopOptions                   = op.loopOptions;
 
+    console.log('loopOptions', loopOptions);
     var limit         = localMochaOptions.limit || 5
-    var parallelType  = localMochaOptions.parallelType
+    var parallelType  = loopOptions.parallel
     var env           = _.merge(process.env, localOtherOptionsStringified)
 
     // pick a way to split up the work

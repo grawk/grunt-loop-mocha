@@ -41,9 +41,6 @@ module.exports = function (grunt) {
 					},
 					{
 						"description": "many",
-						"mocha": {
-							"parallelType": "file"
-						},
 						"env1": {
 							"anotherKey": "BLERG"
 						},
@@ -54,13 +51,16 @@ module.exports = function (grunt) {
 					}
 				],
 				mocha: {
-					parallel: true,
+					parallel: "file",
 					globals: ['should'],
 					timeout: 3000,
 					ui: 'bdd',
-					reporter: "xunit-file",
-					reportLocation: "test/report"
-				},
+					reporter: "xunit-file"
+        },
+        loop: {
+          reportLocation: "test/report",
+          parallel: "iteration"
+        },
 				env1: {
 					stringVal: "fromfile"
 				},

@@ -23,14 +23,16 @@ module.exports = function (grunt) {
 		iterationResults = {};
 
 	grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function () {
+    console.log("loopmocha.options.loop", grunt.config.get("loopmocha.options.loop"));
 		var options = this.options(),
 			mochaDefaultOptions = grunt.config.get("loopmocha.options.mocha"),
 			mochaOptions = _.merge(mochaDefaultOptions, options.mocha),
-			allDefaultOptions = grunt.config.get("loopmocha.options"),
+      loopOptions = grunt.config.get("loopmocha.options.loop"),
+      allDefaultOptions = grunt.config.get("loopmocha.options"),
 			otherDefaultOptions = {},
 			otherOptions = {},
-			reportLocation = mochaDefaultOptions.reportLocation || '',
-			asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true")
+			reportLocation = loopOptions.reportLocation || '',
+			asyncMethod = (loopOptions.parallel)
 							? "map"
 							: "mapSeries",
 			binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
@@ -97,10 +99,9 @@ module.exports = function (grunt) {
 			_.each(_.omit(localMochaOptions
 						, 'reportLocation'
 						, 'iterations'
-						, 'parallel'
 						, 'noFail'
 						, 'limit'        	// the limit var for mapLimit
-						, 'parallelType')	// the kind of parallel run (better name?)
+						)
 					, function (value, key) {
 						if (value !== 0) {
 							//console.log("added from A", key);
@@ -137,7 +138,8 @@ module.exports = function (grunt) {
 				  , localopts                   : localopts
 				  , localOtherOptionsStringified: localOtherOptionsStringified
 				  , itLabel                     : itLabel
-				  , localMochaOptions			: localMochaOptions
+				  , localMochaOptions			      : localMochaOptions
+          , loopOptions                 : loopOptions
 				}
 				, cb)
 
