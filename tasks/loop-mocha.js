@@ -23,7 +23,6 @@ module.exports = function (grunt) {
     iterationResults = {};
 
   grunt.registerMultiTask('loopmocha', 'Run mocha multiple times', function () {
-    console.log("loopmocha.options.loop", grunt.config.get("loopmocha.options.loop"));
     var options = this.options(),
       mochaDefaultOptions = grunt.config.get("loopmocha.options.mocha"),
       mochaOptions = _.merge(mochaDefaultOptions, options.mocha),
@@ -103,7 +102,6 @@ module.exports = function (grunt) {
       )
         , function (value, key) {
           if (value !== 0) {
-            //console.log("added from A", key);
             opts[key] = value || "";
           }
         });
@@ -156,6 +154,7 @@ module.exports = function (grunt) {
       } else {
         done();
       }
+      console.log("[grunt-loop-mocha] Total Runtime", Math.floor((((new Date()).getTime()) - runStamp)/1000) + "s");
     });
   });
 };
