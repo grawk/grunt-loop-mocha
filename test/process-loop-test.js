@@ -61,14 +61,14 @@ describe("Process Loop", function () {
             .to.deep.equal(['other', 'options', 'one'])
           expect(env)
             .to.have.deep.property('env.XUNIT_FILE')
-            .that.equals('./a/report/location/xunit-Test Label:one.xml')
+            .that.equals('./a/report/location/xunit-Test Label-one.xml')
 
         } else if (op.indexOf('two') >= 0) {
           expect(op)
             .to.deep.equal(['other', 'options', 'two'])
           expect(env)
             .to.have.deep.property('env.XUNIT_FILE')
-            .that.equals('./a/report/location/xunit-Test Label:two.xml')
+            .that.equals('./a/report/location/xunit-Test Label-two.xml')
         } else {
           expect(true).to.not.be.true
         }
@@ -86,13 +86,13 @@ describe("Process Loop", function () {
     testMe({filesSrc: ['one', 'two'], mocha_path: 'some/mocha/path', reportLocation: './a/report/location', localopts: ['other', 'options'], localOtherOptionsStringified: {opt: '"process"'}, itLabel: 'Test Label', localMochaOptions: {
         reporter: "xunit-file"
       }, loopOptions: {
-        parallel: "file", reportLocation: "/some/path"
+        parallel: {type: "file"}, reportLocation: "/some/path"
       }}
       , function (err, results) {
         expect(results)
           .to.deep.equal([
-            [ 0, 'Test Label:one' ],
-            [ 0, 'Test Label:two' ]
+            [ 0, 'Test Label-one' ],
+            [ 0, 'Test Label-two' ]
           ])
         done()
       })
@@ -113,14 +113,14 @@ describe("Process Loop", function () {
             .to.deep.equal(['other', 'options', '/dir1/one', '/dir1/two'])
           expect(env)
             .to.have.deep.property('env.XUNIT_FILE')
-            .that.equals('./a/report/location/xunit-Test Label:-dir1.xml')
+            .that.equals('./a/report/location/xunit-Test Label--dir1.xml')
 
         } else if (op.indexOf('/dir2/one') >= 0) {
           expect(op)
             .to.deep.equal(['other', 'options', '/dir2/one', '/dir2/two'])
           expect(env)
             .to.have.deep.property('env.XUNIT_FILE')
-            .that.equals('./a/report/location/xunit-Test Label:-dir2.xml')
+            .that.equals('./a/report/location/xunit-Test Label--dir2.xml')
         } else {
           expect(true).to.not.be.true
         }
@@ -139,13 +139,13 @@ describe("Process Loop", function () {
         , '/dir2/one', '/dir2/two'], mocha_path: 'some/mocha/path', reportLocation: './a/report/location', localopts: ['other', 'options'], localOtherOptionsStringified: {opt: '"process"'}, itLabel: 'Test Label', localMochaOptions: {
         reporter: "xunit-file"
       }, loopOptions: {
-        parallel: "directory", reportLocation: "/some/path"
+        parallel: {type: "directory"}, reportLocation: "/some/path"
       }}
       , function (err, results) {
         expect(results)
           .to.deep.equal([
-            [ 0, 'Test Label:-dir1' ],
-            [ 0, 'Test Label:-dir2' ]
+            [ 0, 'Test Label--dir1' ],
+            [ 0, 'Test Label--dir2' ]
           ])
         done()
       })

@@ -7,10 +7,10 @@ var _     = require('lodash');
 var async = require('async');
 
 /**
-  * Main level.  Grunt is injected
-  * from the task.  _spawn is injected
-  * to help with tests.
-  */
+ * Main level.  Grunt is injected
+ * from the task.  _spawn is injected
+ * to help with tests.
+ */
 module.exports = function exports (grunt, _spawn) {
   // injection here
   if (_spawn) {
@@ -63,53 +63,53 @@ module.exports = function exports (grunt, _spawn) {
       , loopOptions                   = op.loopOptions;
 
     console.log('loopOptions', loopOptions);
-    var limit         = localMochaOptions.limit || 5;
-    var parallelType  = loopOptions.parallel;
+    var limit         = (loopOptions.parallel && loopOptions.parallel.limit) ? loopOptions.parallel.limit : 5;
+    var parallelType  = (loopOptions.parallel && loopOptions.parallel.type) ? loopOptions.parallel.type : "none";
     var env           = _.merge(process.env, localOtherOptionsStringified);
 
     // pick a way to split up the work
     if (parallelType === 'directory') {   // async by directory
       async
         .mapLimit(_.chain(filesSrc)
-                    // group by the directory path
-                    .groupBy(function(file) {
-                      return path.dirname(file);
-                    })
-                    // rework the data into something async will be ok with
-                    .map(function(files, dir) {
-                      return [files, dir];
-                    })
-                    .value()
-                , limit
-                , function(args, _cb) {
-                    // update the label, do the work
-                    work(itLabel + ':' + args[1].replace(/\//g, '-')
-                        , args[0]
-                        , _.cloneDeep(env)
-                        , _.cloneDeep(localopts)
-                        , _cb);
-                }
-                , cb);
+        // group by the directory path
+        .groupBy(function(file) {
+          return path.dirname(file);
+        })
+        // rework the data into something async will be ok with
+        .map(function(files, dir) {
+          return [files, dir];
+        })
+        .value()
+        , limit
+        , function(args, _cb) {
+          // update the label, do the work
+          work(itLabel + '-' + args[1].replace(/[\/|\\|:]/g, '-')
+            , args[0]
+            , _.cloneDeep(env)
+            , _.cloneDeep(localopts)
+            , _cb);
+        }
+        , cb);
     } else if (parallelType === 'file') { // async by file
       async
         .mapLimit(filesSrc
-                , limit
-                , function(file, _cb) {
-                    // update the label, do the work
-                    work(itLabel + ':' + file.replace(/\//g, '-')
-                        , [file]
-                        , _.cloneDeep(env)
-                        , _.cloneDeep(localopts)
-                        , _cb);
-                }
-                , cb);
+        , limit
+        , function(file, _cb) {
+          // update the label, do the work
+          work(itLabel + '-' + file.replace(/[\/|\\|:]/g, '-')
+            , [file]
+            , _.cloneDeep(env)
+            , _.cloneDeep(localopts)
+            , _cb);
+        }
+        , cb);
     }  else {                             // not async
       work(itLabel, filesSrc, env, localopts
-          , function(err, result) {
-              // to normalize results, we wrap this one in an
-              // array, even though there is only one.
-              cb(err, [result]);
-            });
+        , function(err, result) {
+          // to normalize results, we wrap this one in an
+          // array, even though there is only one.
+          cb(err, [result]);
+        });
     }
   };
 };
