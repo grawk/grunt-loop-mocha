@@ -97,7 +97,6 @@ module.exports = function (grunt) {
       _.each(_.omit(localMochaOptions
         , 'reportLocation'
         , 'iterations'
-        , 'noFail'
         , 'limit' // the limit var for mapLimit
       )
         , function (value, key) {
@@ -111,7 +110,7 @@ module.exports = function (grunt) {
           done(new Error("[grunt-loop-mocha] You need to make sure your report directory exists before using the xunit-file reporter"));
         }
       }
-      if (localMochaOptions.noFail && localMochaOptions.noFail.toString().toLowerCase() === "true") {
+      if (loopOptions.noFail && loopOptions.noFail.toString().toLowerCase() === "true") {
         noFail = true;
       }
 
