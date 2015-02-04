@@ -31,7 +31,7 @@ module.exports = function (grunt) {
       otherOptions = {},
       reportLocation = mochaDefaultOptions.reportLocation || '',
       asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true") ? "map" : "mapSeries",
-      binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
+      binPath = options.mocha_bin || '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
       mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
       iterations = options.iterations || undefined,
       iterationRemaining = Object.keys(iterations).length,
