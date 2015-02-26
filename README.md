@@ -94,3 +94,6 @@ Array of JSON objects. mocha will loop for each item, using its properties for t
 
 ### mocha process environment variables
 Additional sibling elements to mocha/iterations will be set as stringified JSON to an environment variable of the same name as the key
+
+### mocha_bin option (optional: defaults to null)
+String, path to mocha or 'mocha compatible' executable. This option allows to override default mocha
