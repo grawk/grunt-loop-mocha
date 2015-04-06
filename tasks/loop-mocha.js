@@ -26,11 +26,13 @@ module.exports = function (grunt) {
     var options = this.options(),
       mochaDefaultOptions = grunt.config.get("loopmocha.options.mocha"),
       mochaOptions = _.merge(mochaDefaultOptions, options.mocha),
+      loopDefaultOptions = grunt.config.get("loopmocha.options.loop"),
+      loopOptions = _.merge(loopDefaultOptions, options.loop),
       allDefaultOptions = grunt.config.get("loopmocha.options"),
       otherDefaultOptions = {},
       otherOptions = {},
-      reportLocation = mochaDefaultOptions.reportLocation || '',
-      asyncMethod = (mochaOptions.parallel && mochaOptions.parallel.toString().toLowerCase() === "true") ? "map" : "mapSeries",
+      reportLocation = loopOptions.reportLocation || '',
+      asyncMethod = (loopOptions.parallel && loopOptions.parallel !== false) ? "map" : "mapSeries",
       binPath = '.bin/mocha' + (process.platform === 'win32' ? '.cmd' : ''),
       mocha_path = path.join(__dirname, '..', '/node_modules/', binPath),
       iterations = options.iterations || undefined,
@@ -86,7 +88,7 @@ module.exports = function (grunt) {
       //stringify the extra options for passage via env
       _.each(localOtherOptions, function (value, key) {
         console.log("[grunt-loop-mocha] setting ENV var ", key, "with value", value);
-        localOtherOptionsStringified[key] = JSON.stringify(value);
+        localOtherOptionsStringified[key] = (value.constructor === Object) ? JSON.stringify(value) : value;
       });
 
       // put the localMochaOptions into opts so we can pass
@@ -95,13 +97,10 @@ module.exports = function (grunt) {
       _.each(_.omit(localMochaOptions
         , 'reportLocation'
         , 'iterations'
-        , 'parallel'
-        , 'noFail'
         , 'limit' // the limit var for mapLimit
-        , 'parallelType')	// the kind of parallel run (better name?)
+      )
         , function (value, key) {
           if (value !== 0) {
-            //console.log("added from A", key);
             opts[key] = value || "";
           }
         });
@@ -111,7 +110,7 @@ module.exports = function (grunt) {
           done(new Error("[grunt-loop-mocha] You need to make sure your report directory exists before using the xunit-file reporter"));
         }
       }
-      if (localMochaOptions.noFail && localMochaOptions.noFail.toString().toLowerCase() === "true") {
+      if (loopOptions.noFail && loopOptions.noFail.toString().toLowerCase() === "true") {
         noFail = true;
       }
 
@@ -129,7 +128,7 @@ module.exports = function (grunt) {
       // the results will be in the form
       // [[returnCode, itterationName], ...]
       require('./process-loop.js')(grunt)({
-          filesSrc: filesSrc, mocha_path: mocha_path, reportLocation: reportLocation, localopts: localopts, localOtherOptionsStringified: localOtherOptionsStringified, itLabel: itLabel, localMochaOptions: localMochaOptions
+          filesSrc: filesSrc, mocha_path: mocha_path, reportLocation: reportLocation, localopts: localopts, localOtherOptionsStringified: localOtherOptionsStringified, itLabel: itLabel, localMochaOptions: localMochaOptions, loopOptions: loopOptions
         }
         , cb);
 
@@ -154,6 +153,7 @@ module.exports = function (grunt) {
       } else {
         done();
       }
+      console.log("[grunt-loop-mocha] Total Runtime", Math.floor((((new Date()).getTime()) - runStamp)/1000) + "s");
     });
   });
 };

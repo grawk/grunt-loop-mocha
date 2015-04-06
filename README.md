@@ -26,7 +26,9 @@ loopmocha: {
 			timeout: 3000,
 			ui: 'bdd',
 			reporter: "xunit-file",
-			reportLocation: "test/report"
+		},
+		loop: {
+		    reportLocation: "test/report"
 		},
 		env1: {
 			stringVal: "fromfile"
@@ -79,9 +81,11 @@ grunt.registerTask('test', 'loopmocha');
 
 ### mocha options
 
-any supported mocha command line argument is accepted here. In addition to those mocha specific arguments, the following lowercase options are specifically for configuring this task, and won't be passed along to the mocha process:
+any supported mocha command line argument is accepted.
 
-* parallel (optional: defaults to false): If true, mocha iterations will run in parallel via async.forEach. If false, mocha iterations will run in series via async.forEachSeries
+### loop options
+
+* parallel (optional: defaults to false): To engage a parallel testing ability, specify parallel.type = "file|directory". Optionally specify parallel.limit to limit the concurrent running processes
 * reportLocation (required if using xunit-file reporter): specify where xunit report files should be written. Note: if you are using "xunit-file" as your reporter, you need to add it to your package.json
 * noFail (optional: defaults to false): If true, the task will exit as zero regardless of any mocha test failures
 
@@ -93,4 +97,5 @@ Array of JSON objects. mocha will loop for each item, using its properties for t
 
 
 ### mocha process environment variables
-Additional sibling elements to mocha/iterations will be set as stringified JSON to an environment variable of the same name as the key
+Additional sibling elements to mocha/loop/iterations will be set as environment variables of the same name as the key. If the key value is a JSON object,
+grunt-loop-mocha will call JSON.stringify before storing it as an
