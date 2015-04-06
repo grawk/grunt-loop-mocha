@@ -12,6 +12,7 @@ var async = require('async');
  * to help with tests.
  */
 module.exports = function exports (grunt, _spawn) {
+
   // injection here
   if (_spawn) {
     spawn = _spawn;
