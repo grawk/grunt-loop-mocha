@@ -82,7 +82,7 @@ module.exports = function (grunt) {
 			//stringify the extra options for passage via env
 			_.each(localOtherOptions, function (value, key) {
 				console.log("[grunt-loop-mocha] setting ENV var ", key, "with value", value);
-				localOtherOptionsStringified[key] = JSON.stringify(value);
+				localOtherOptionsStringified[key] = (value.constructor === Object) ? JSON.stringify(value) : value;
 			});
 
 			grunt.log.writeln("[grunt-loop-mocha] iteration: ", itLabel);
