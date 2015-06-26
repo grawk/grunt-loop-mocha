@@ -1,9 +1,22 @@
 # grunt-loop-mocha Changes
 
+## v1.1.0
+
+**Bug fix** Fixes #24. Minor release bump since this bug fix does represent a change in behavior. Though presumably nobody was relying
+on the buggy behavior. It just took some time to find this edge case due to the lack of a comprehensive unit test suite.
+
+## v1.0.0
+
+**Breaking change** moving all non-mocha options out of "mocha" config namespace (e.g. reportLocation). Adding "loop" namespace for such options.
+See https://github.com/grawk/grunt-loop-mocha/blob/master/README.md#loop-options for more details
+
+**New feature** parallelism by file or directory in addition to parallelism by iterations. See [parallel option](https://github.com/grawk/grunt-loop-mocha/blob/1.0.development/README.md#loop-options)
+
 ## v0.3.0
 
 * Change structure of JSON config to namespace the mocha options, and namespace additional values as siblings to the mocha/iterations objects
 * Pass-through variables no longer set via argv on the command line. Instead, per the additional namespaces on the options object, stringified JSON environment variables will be set
+
 ## v0.2.6
 
 * Export iteration label as a command line arg for use in mocha tests

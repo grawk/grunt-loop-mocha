@@ -26,7 +26,7 @@ module.exports = function (grunt) {
     var options = this.options(),
       mochaDefaultOptions = grunt.config.get("loopmocha.options.mocha"),
       mochaOptions = _.merge(mochaDefaultOptions, options.mocha),
-      loopDefaultOptions = grunt.config.get("loopmocha.options.loop"),
+      loopDefaultOptions = grunt.config.get("loopmocha.options.loop") || {},
       loopOptions = _.merge(loopDefaultOptions, options.loop),
       allDefaultOptions = grunt.config.get("loopmocha.options"),
       otherDefaultOptions = {},
@@ -51,7 +51,7 @@ module.exports = function (grunt) {
       otherOptions[key] = value;
     });
     //merge together the default and task specific extra options
-    otherOptions = _.merge(otherDefaultOptions, otherOptions);
+    _.merge(otherOptions, otherDefaultOptions);
     if (!exists(mocha_path)) {
       var i = module.paths.length,
         bin;
@@ -75,18 +75,20 @@ module.exports = function (grunt) {
         opts = {},
         localopts = [],
         localOtherOptions = {},
+        mergedOtherOptions = {},
         localOtherOptionsStringified = {},
         localMochaOptions = (el.mocha) ? _.merge(mochaOptions, el.mocha) : mochaOptions,
         itLabel = runStamp + "-" + ((el.description) ? (el.description) : (++iterationIndex)); // = opts_array.slice(0);
 
       //merge the iteration extra options with the default/task specific extra options
       _.each(_.omit(el, 'description', 'mocha'), function (value, key) {
+          console.log('adding key', key, 'value', value);
         localOtherOptions[key] = value;
       });
-      localOtherOptions = _.merge(otherOptions, localOtherOptions);
+        _.merge(mergedOtherOptions, otherOptions, localOtherOptions);
 
-      //stringify the extra options for passage via env
-      _.each(localOtherOptions, function (value, key) {
+        //stringify the extra options for passage via env
+      _.each(mergedOtherOptions, function (value, key) {
         console.log("[grunt-loop-mocha] setting ENV var ", key, "with value", value);
         localOtherOptionsStringified[key] = (value.constructor === Object) ? JSON.stringify(value) : value;
       });
