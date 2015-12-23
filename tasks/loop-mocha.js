@@ -143,7 +143,7 @@ module.exports = function (grunt) {
         return results;
       }, {});
       if (iterationError) {
-        var msg = "[grunt-loop-mocha] error, please check erroneous iteration(s): " + JSON.stringify(iterationResults);
+        var msg = "[grunt-loop-mocha] error, please check erroneous iteration(s): \n" + JSON.stringify(iterationResults, null, 4) + "\n";
         if (noFail === true) {
           console.log(msg);
           done();
