@@ -1,5 +1,10 @@
 # grunt-loop-mocha Changes
 
+## v1.2.0
+
+* **New feature** adding configurable option for path to mocha binary
+* **New feature** better formatting for console output
+
 ## v1.1.0
 
 **Bug fix** Fixes #24. Minor release bump since this bug fix does represent a change in behavior. Though presumably nobody was relying
