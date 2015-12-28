@@ -99,3 +99,9 @@ Array of JSON objects. mocha will loop for each item, using its properties for t
 ### mocha process environment variables
 Additional sibling elements to mocha/loop/iterations will be set as environment variables of the same name as the key. If the key value is a JSON object,
 grunt-loop-mocha will call JSON.stringify before storing it as an
+
+### mocha_bin option (optional: defaults to null)
+String, path to mocha or 'mocha compatible' executable. This option allows to override default mocha
+```javascript
+     loopmocha.options."mocha_bin": '<custom-bin-path>'
+```
