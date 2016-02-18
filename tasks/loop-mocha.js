@@ -106,12 +106,6 @@ module.exports = function (grunt) {
             opts[key] = value || "";
           }
         });
-      if (localMochaOptions.reporter === "xunit-file") {
-        var reportFolderExists = (fs.existsSync(reportLocation) && fs.statSync(reportLocation).isDirectory());
-        if (!reportFolderExists) {
-          done(new Error("[grunt-loop-mocha] You need to make sure your report directory exists before using the xunit-file reporter"));
-        }
-      }
       if (loopOptions.noFail && loopOptions.noFail.toString().toLowerCase() === "true") {
         noFail = true;
       }
