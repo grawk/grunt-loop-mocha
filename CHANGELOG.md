@@ -1,5 +1,9 @@
 # grunt-loop-mocha Changes
 
+## v1.2.1
+
+* **Enhancement** remove manual directory creation for the xunit-file case since xunit-file now handles that internally
+
 ## v1.2.0
 
 * **New feature** adding configurable option for path to mocha binary
