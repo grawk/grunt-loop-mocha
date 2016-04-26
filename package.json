@@ -1,14 +1,17 @@
 {
   "name": "grunt-loop-mocha",
   "description": "A loop wrapper for initiating multiple mocha runs from one task target",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "homepage": "https://github.com/grawk/grunt-loop-mocha",
   "author": {
     "name": "Matt Edelman",
     "email": "mattedelman@gmail.com",
     "url": "https://github.com/grawk"
   },
-  "contributors": ["seebees", "viswanathankasi"],
+  "contributors": [
+    "seebees",
+    "viswanathankasi"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/grawk/grunt-loop-mocha.git"
