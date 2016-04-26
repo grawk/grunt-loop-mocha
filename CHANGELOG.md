@@ -1,5 +1,11 @@
 # grunt-loop-mocha Changes
 
+## v1.2.2
+
+* documentation for `mocha_bin` feature. See: https://github.com/grawk/grunt-loop-mocha/pull/31
+* update peer dependency on grunt to support grunt 1.0: https://github.com/grawk/grunt-loop-mocha/pull/33
+* add contributors to package.json
+
 ## v1.2.1
 
 * **Enhancement** remove manual directory creation for the xunit-file case since xunit-file now handles that internally

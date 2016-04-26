@@ -8,6 +8,7 @@
     "email": "mattedelman@gmail.com",
     "url": "https://github.com/grawk"
   },
+  "contributors": ["seebees", "viswanathankasi"],
   "repository": {
     "type": "git",
     "url": "git://github.com/grawk/grunt-loop-mocha.git"
